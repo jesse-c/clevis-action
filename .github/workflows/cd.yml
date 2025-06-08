@@ -1,0 +1,68 @@
+name: CD
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (if not provided, version will be automatically bumped)"
+        required: false
+        type: string
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # This fetches all history and tags
+
+      - name: Check conventional commits
+        uses: cocogitto/cocogitto-action@v3
+
+      - name: Bump version
+        id: bump
+        if: ${{ github.event.inputs.version == '' || github.event.inputs.version == null }}
+        uses: cocogitto/cocogitto-action@v3
+        with:
+          release: true
+          git-user: "${{ github.actor }}"
+          git-user-email: "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Set manual version
+        id: manual_version
+        if: ${{ github.event.inputs.version != '' && github.event.inputs.version != null }}
+        run: echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+
+      - name: Check if Git tag exists for manual version
+        if: ${{ github.event.inputs.version != '' && github.event.inputs.version != null }}
+        run: |
+          if ! git rev-parse "${{ github.event.inputs.version }}" >/dev/null 2>&1; then
+            echo "::error::Git tag '${{ github.event.inputs.version }}' does not exist. Please provide a valid existing tag."
+            exit 1
+          fi
+
+      - name: Generate changelog
+        run: |
+          VERSION="${{ steps.bump.outputs.version || steps.manual_version.outputs.version }}"
+          cog changelog --at $VERSION -t full_hash > GITHUB_CHANGELOG.md
+
+      - name: Create major version tag
+        run: |
+          VERSION="${{ steps.bump.outputs.version || steps.manual_version.outputs.version }}"
+          MAJOR_VERSION=$(echo $VERSION | sed 's/v\([0-9]*\).*/v\1/')
+          git tag -f $MAJOR_VERSION
+          git push origin $MAJOR_VERSION --force
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ${{ steps.bump.outputs.version || steps.manual_version.outputs.version }}
+          body_path: GITHUB_CHANGELOG.md
+          tag_name: ${{ steps.bump.outputs.version || steps.manual_version.outputs.version }}
+          fail_on_unmatched_files: false
