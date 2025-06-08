@@ -131,8 +131,13 @@ runs:
 
         echo "Running: clevis $ARGS"
 
-        # Run clevis and capture output
-        if OUTPUT=$(eval "clevis $ARGS" 2>&1); then
+        # Run clevis and capture output and exit code
+        set +e  # Don't exit on command failure
+        OUTPUT=$(eval "clevis $ARGS" 2>&1)
+        EXIT_CODE=$?
+        set -e  # Re-enable exit on failure
+
+        if [ $EXIT_CODE -eq 0 ]; then
           echo "result=true" >> $GITHUB_OUTPUT
           echo "Clevis completed successfully"
         else
@@ -150,5 +155,5 @@ runs:
 
         # Exit with clevis's exit code for check command
         if [ "${{ inputs.command }}" = "check" ]; then
-          eval "clevis $ARGS"
+          exit $EXIT_CODE
         fi
