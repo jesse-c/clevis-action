@@ -1,44 +1,44 @@
-name: 'Clevis - The Big Linker'
-description: 'Check if values match between different parts of your codebase using configuration files'
-author: 'jesse-c'
+name: "Clevis - The Big Linker"
+description: "Check if values match between different parts of your codebase using configuration files"
+author: "jesse-c"
 
 branding:
-  icon: 'link'
-  color: 'blue'
+  icon: "link"
+  color: "blue"
 
 inputs:
   config-path:
-    description: 'Path to the Clevis configuration file'
+    description: "Path to the Clevis configuration file"
     required: false
-    default: './clevis.toml'
-  
+    default: "./clevis.toml"
+
   link-key:
-    description: 'Specific link key to check (if omitted, checks all links)'
+    description: "Specific link key to check (if omitted, checks all links)"
     required: false
-  
+
   command:
-    description: 'Command to run: check, list, or show'
+    description: "Command to run: check, list, or show"
     required: false
-    default: 'check'
-  
+    default: "check"
+
   verbose:
-    description: 'Enable verbose output'
+    description: "Enable verbose output"
     required: false
-    default: 'false'
-  
+    default: "false"
+
   version:
-    description: 'Version of Clevis to use (defaults to latest release)'
+    description: "Version of Clevis to use (defaults to latest release)"
     required: false
 
 outputs:
   result:
-    description: 'Result of the check operation (true/false for check command)'
-  
+    description: "Result of the check operation (true/false for check command)"
+
   output:
-    description: 'Full output from the clevis command'
+    description: "Full output from the clevis command"
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Download and setup Clevis
       shell: bash
@@ -46,21 +46,21 @@ runs:
         # Determine architecture and OS
         ARCH=$(uname -m)
         OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-        
+
         # Map architecture names
         case $ARCH in
           x86_64) ARCH="x86_64" ;;
           aarch64|arm64) ARCH="aarch64" ;;
           *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
         esac
-        
+
         # Map OS names - based on actual release assets
         case $OS in
           linux) OS="linux" ;;
           darwin) OS="darwin" ;;
           *) echo "Unsupported OS: $OS" && exit 1 ;;
         esac
-        
+
         # Get version to download
         if [ -n "${{ inputs.version }}" ]; then
           VERSION="${{ inputs.version }}"
@@ -73,20 +73,20 @@ runs:
           fi
           echo "Using latest Clevis version: $VERSION"
         fi
-        
+
         # Download pre-built binary
         BINARY_NAME="clevis-${OS}-${ARCH}"
         DOWNLOAD_URL="https://github.com/jesse-c/clevis/releases/download/${VERSION}/${BINARY_NAME}"
-        
+
         echo "Downloading clevis ${VERSION} for ${ARCH}-${OS}..."
         curl -L -o /tmp/clevis "${DOWNLOAD_URL}" || {
           echo "Error: Failed to download binary from ${DOWNLOAD_URL}"
           exit 1
         }
-        
+
         chmod +x /tmp/clevis
         sudo mv /tmp/clevis /usr/local/bin/clevis
-        
+
         # Verify installation
         clevis --version
 
@@ -96,15 +96,15 @@ runs:
       run: |
         # Build command arguments
         ARGS=""
-        
+
         if [ "${{ inputs.verbose }}" = "true" ]; then
           ARGS="$ARGS --verbose"
         fi
-        
+
         if [ -n "${{ inputs.config-path }}" ]; then
           ARGS="$ARGS --path '${{ inputs.config-path }}'"
         fi
-        
+
         # Add command
         case "${{ inputs.command }}" in
           "check")
@@ -128,9 +128,9 @@ runs:
             exit 1
             ;;
         esac
-        
+
         echo "Running: clevis $ARGS"
-        
+
         # Run clevis and capture output
         if OUTPUT=$(eval "clevis $ARGS" 2>&1); then
           echo "result=true" >> $GITHUB_OUTPUT
