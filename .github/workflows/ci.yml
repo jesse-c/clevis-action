@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Test Action
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,8 +21,15 @@ jobs:
       
       - name: Run tests
         run: just test
-      
-      - name: Test action with GitHub Actions
+
+  run:
+    name: Run
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the Action as a GitHub Action
         uses: ./
         with:
           config-path: './tests/test.toml'
