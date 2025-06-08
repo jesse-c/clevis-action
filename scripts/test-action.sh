@@ -35,19 +35,24 @@ case $OS in
     *) echo "❌ Unsupported OS: $OS" && exit 1 ;;
 esac
 
-# Get latest release version
-LATEST_VERSION=$(curl -s https://api.github.com/repos/jesse-c/clevis/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
-
-if [ -z "$LATEST_VERSION" ]; then
-    echo "❌ Failed to get latest version from GitHub releases"
-    exit 1
+# Get version to download (use latest if not specified)
+if [ -n "${CLEVIS_VERSION:-}" ]; then
+    VERSION="$CLEVIS_VERSION"
+    echo "Using specified Clevis version: $VERSION"
+else
+    VERSION=$(curl -s https://api.github.com/repos/jesse-c/clevis/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+    if [ -z "$VERSION" ]; then
+        echo "❌ Failed to get latest version from GitHub releases"
+        exit 1
+    fi
+    echo "Using latest Clevis version: $VERSION"
 fi
 
 # Download pre-built binary
 BINARY_NAME="clevis-${OS}-${ARCH}"
-DOWNLOAD_URL="https://github.com/jesse-c/clevis/releases/download/${LATEST_VERSION}/${BINARY_NAME}"
+DOWNLOAD_URL="https://github.com/jesse-c/clevis/releases/download/${VERSION}/${BINARY_NAME}"
 
-echo "Downloading clevis ${LATEST_VERSION} for ${ARCH}-${OS}..."
+echo "Downloading clevis ${VERSION} for ${ARCH}-${OS}..."
 echo "URL: ${DOWNLOAD_URL}"
 
 if curl -L -f -o /tmp/clevis "${DOWNLOAD_URL}"; then
