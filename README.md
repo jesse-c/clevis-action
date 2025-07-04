@@ -153,3 +153,7 @@ The Action will fail if:
 - The configuration file is not found or invalid
 - Any checked links have mismatched values
 - Required inputs are missing (e.g., `link-key` for `show` command)
+
+## Releases
+
+Run manually the `CD` flow. Optionally specify a version.
