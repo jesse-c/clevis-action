@@ -33,9 +33,11 @@ inputs:
 outputs:
   result:
     description: "Result of the check operation (true/false for check command)"
+    value: ${{ steps.clevis.outputs.result }}
 
   output:
     description: "Full output from the clevis command"
+    value: ${{ steps.clevis.outputs.output }}
 
 runs:
   using: "composite"
