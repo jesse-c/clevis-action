@@ -143,9 +143,10 @@ column = 35
 
 ## Supported File Types
 
-- **TOML files**: Read values using key paths (e.g., `package.version`)
-- **YAML files**: Read values using key paths (e.g., `metadata.name`)
-- **Text spans**: Read specific character ranges from any text file
+- **TOML**: Read values using key paths (e.g., `package.version`)
+- **YAML**: Read values using key paths (e.g., `metadata.name`)
+- **Spans**: Read specific character ranges from any text file
+- **Query**: Use custom queries to extract values from files
 
 ## Error Handling
 
