@@ -22,13 +22,16 @@ jobs:
 
       - name: Check conventional commits
         uses: cocogitto/cocogitto-action@v4
+        with:
+          command: check
 
       - name: Bump version
         id: bump
         if: ${{ github.event.inputs.version == '' || github.event.inputs.version == null }}
         uses: cocogitto/cocogitto-action@v4
         with:
-          release: true
+          command: bump
+          args: --auto
           git-user: "${{ github.actor }}"
           git-user-email: "${{ github.actor }}@users.noreply.github.com"
 
