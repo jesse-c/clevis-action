@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: jesse-c/clevis-action@v0.2.0
+      - uses: jesse-c/clevis-action@v0.2.1
         with:
           config-path: './clevis.toml'
 ```
@@ -27,7 +27,7 @@ jobs:
 ### Check a specific link
 
 ```yaml
-- uses: jesse-c/clevis-action@v0.2.0
+- uses: jesse-c/clevis-action@v0.2.1
   with:
     config-path: './clevis.toml'
     command: 'check'
@@ -37,7 +37,7 @@ jobs:
 ### List all available links
 
 ```yaml
-- uses: jesse-c/clevis-action@v0.2.0
+- uses: jesse-c/clevis-action@v0.2.1
   with:
     config-path: './clevis.toml'
     command: 'list'
@@ -47,7 +47,7 @@ jobs:
 ### Show values for a specific link
 
 ```yaml
-- uses: jesse-c/clevis-action@v0.2.0
+- uses: jesse-c/clevis-action@v0.2.1
   with:
     config-path: './clevis.toml'
     command: 'show'
@@ -74,7 +74,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Check all links
-        uses: jesse-c/clevis-action@v0.2.0
+        uses: jesse-c/clevis-action@v0.2.1
         id: clevis-check
         with:
           config-path: './clevis.toml'
